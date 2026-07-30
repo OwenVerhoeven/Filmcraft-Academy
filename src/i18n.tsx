@@ -53,6 +53,7 @@ const copy = {
     cloudSynced: "Cloud synced",
     syncing: "Syncing",
     localSave: "Local save",
+    syncError: "Sync error",
   },
   nl: {
     journey: "Reis",
@@ -100,6 +101,7 @@ const copy = {
     cloudSynced: "Cloud opgeslagen",
     syncing: "Synchroniseren",
     localSave: "Lokaal opgeslagen",
+    syncError: "Synchronisatiefout",
   },
 } as const;
 type Key = keyof typeof copy.en;

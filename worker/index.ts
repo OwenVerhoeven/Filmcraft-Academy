@@ -5,15 +5,13 @@ type StoredProgress = { progress: unknown; revision: number; updatedAt: string }
 
 const accounts: Record<
   AccountName,
-  { salt: string; hash: string }
+  { hash: string }
 > = {
   SinbodWayne: {
-    salt: "filmcraft-sinbod-v2",
-    hash: "475f81f207679bc35db54a17114afc25fc8c8f568564f4960b611a2087ef1557",
+    hash: "db5b765f020b9af7aa788267e0eb9cb6e2c5a0d5a9de6d431aae322fff151ade",
   },
   KyanWayne: {
-    salt: "filmcraft-kyan-v2",
-    hash: "6ba811f8e80a76e54393488d498291c0dcf203b6a80c91198ea78bcbf422565a",
+    hash: "84160d8d352acd9b2fc575dfa6cd5bde13c6a2d1f9a7c0779b76ccca73f2bb89",
   },
 };
 
@@ -31,21 +29,8 @@ async function sha256(value: string) {
   return bytesToHex(await crypto.subtle.digest("SHA-256", encoder.encode(value)));
 }
 
-async function passwordHash(password: string, salt: string) {
-  const material = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
-  return bytesToHex(
-    await crypto.subtle.deriveBits(
-      { name: "PBKDF2", salt: encoder.encode(salt), iterations: 210_000, hash: "SHA-256" },
-      material,
-      256,
-    ),
-  );
+async function passwordHash(username: AccountName, password: string) {
+  return sha256(`filmcraft-v1.1:${username}:${password}`);
 }
 
 function timingSafeEqual(left: string, right: string) {
@@ -297,7 +282,7 @@ export default {
           return json({ error: "Too many attempts. Try again later." }, 429, {
             "Retry-After": "900",
           });
-        const candidate = await passwordHash(password, accounts[username].salt);
+        const candidate = await passwordHash(username, password);
         const valid = timingSafeEqual(candidate, accounts[username].hash);
         await store.recordLogin(clientKey, valid, now);
         if (!valid) return json({ error: "Invalid credentials" }, 401);

@@ -1,16 +1,10 @@
 import { describe,expect,it } from 'vitest';
-import { digest } from './auth';
 import { allSkills,domains } from './content/curriculum';
 import { achievements } from './lib/progression';
 import { createInitialProgress } from './lib/progression';
 import { mergeProgress } from './lib/cloud';
 
 describe('FilmCraft V1 regressions',()=>{
-  it('provides deterministic SHA-256 fallback hashing without secure-origin WebCrypto',()=>{
-    expect(digest('filmcraft-test')).toHaveLength(64);
-    expect(digest('filmcraft-test')).toBe(digest('filmcraft-test'));
-  });
-
   it('uses fork-and-converge talent prerequisites instead of a fake linear chain',()=>{
     for(const domain of domains){
       expect(domain.skills[1].prerequisites).toEqual([domain.skills[0].id]);

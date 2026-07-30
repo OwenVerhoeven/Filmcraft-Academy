@@ -18,7 +18,7 @@ export function Login() {
         setError("Username or password is incorrect.");
     } catch {
       setError(
-        "This device could not verify the account. Reload and try again.",
+        "Cloud sync is unavailable, so login was not completed. Try again shortly.",
       );
     } finally {
       setBusy(false);

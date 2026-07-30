@@ -104,7 +104,7 @@ export function Shell({ children }: { children: ReactNode }) {
                 cloudConnected ? "Cloud temporarily unavailable" : "Saved on this device"
               }>
                 {syncState === "synced" || syncState === "syncing" ? <Cloud /> : <CloudOff />}
-                {syncState === "synced" ? t("cloudSynced") : syncState === "syncing" ? t("syncing") : t("localSave")}
+                {syncState === "synced" ? t("cloudSynced") : syncState === "syncing" ? t("syncing") : syncState === "error" ? t("syncError") : t("localSave")}
               </small>
               <b>{user}</b>
             </span>

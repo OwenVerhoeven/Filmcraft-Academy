@@ -18,7 +18,6 @@
     "cf:types": "wrangler types worker-configuration.d.ts"
   },
   "dependencies": {
-    "@noble/hashes": "^2.2.0",
     "dexie": "latest",
     "lucide-react": "latest",
     "react": "latest",

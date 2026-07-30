@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   LogOut,
+  Medal,
 } from "lucide-react";
 import { NavLink } from "../router";
 import { useProgress } from "../state";
@@ -30,6 +31,7 @@ const nav = [
   ["/quests", "quests", ScrollText],
   ["/character", "character", UserRound],
   ["/achievements", "achievements", Trophy],
+  ["/hall-of-fame", "hallOfFame", Medal],
   ["/codex", "codex", BookOpen],
   ["/portfolio", "portfolio", Images],
   ["/final-boss", "finalBoss", Crown],

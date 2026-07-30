@@ -1,0 +1,2 @@
+import{describe,expect,it}from'vitest';import{readFileSync}from'node:fs';
+describe('account security contract',()=>{const source=readFileSync('src/auth.tsx','utf8');it('contains both account identities',()=>{expect(source).toContain('SinbodWayne');expect(source).toContain('KyanWayne')});it('does not store either plaintext password',()=>{expect(source).not.toContain('lokokip999');expect(source).not.toContain('mijnhondismexx')});it('uses per-account storage keys',()=>{const storage=readFileSync('src/lib/storage.ts','utf8');expect(storage).toContain('account:${account}')})});

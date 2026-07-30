@@ -1,0 +1,19 @@
+{
+  "name": "FilmCraft Academy",
+  "short_name": "FilmCraft",
+  "description": "Master filmmaking, frame by frame.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#080d10",
+  "background_color": "#080d10",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

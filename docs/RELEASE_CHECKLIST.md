@@ -1,0 +1,21 @@
+# V1 Release Checklist
+
+- [x] Local setup and production commands documented
+- [x] Strict production build and PWA artifacts succeed
+- [x] 16 required curriculum worlds and 142 total masteries validate
+- [x] Resolve 21, Fusion, Fairlight, BMCC, M50 and Ronin-M scopes mapped deeply
+- [x] Theory/check/practice/rubric/evidence/mastery workflows work
+- [x] Prerequisite, XP, level, achievement, title and completion tests pass
+- [x] Twelve required views implemented
+- [x] Desktop and Android responsive rendered QA performed
+- [x] Reduced motion, keyboard semantics and touch targets included
+- [x] Export/import and evidence fallback documented and tested
+- [x] Final boss and 100% completion gate implemented
+- [x] Placeholder, graph, reference and schema audits clean
+- [x] Security exception documented
+- [x] Backup, deployment, authoring and troubleshooting guides complete
+- [x] Cloudflare Pages build settings and custom-domain flow documented
+- [x] Direct SPA routes return the application without a custom 404 page
+- [x] Security headers, web manifest, favicon and first-party service worker ship in `dist/`
+- [x] Node 22, lockfile installation and GitHub release-gate workflow configured
+- [x] Production and development dependencies audit with zero known vulnerabilities

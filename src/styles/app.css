@@ -1133,6 +1133,184 @@ dd {
   letter-spacing: 0.1em;
   color: var(--muted);
 }
+
+/* Hall of Fame */
+.hall-title {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 25px;
+}
+.hall-local-note {
+  max-width: 330px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: right;
+}
+.hall-loading {
+  min-height: 55vh;
+  display: grid;
+  place-items: center;
+  color: var(--amber);
+  font: 500 28px "Barlow Condensed";
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hall-podium {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 26px;
+}
+.hall-profile {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.018), transparent 42%),
+    var(--surface);
+  padding: 32px;
+}
+.hall-profile::after {
+  content: "";
+  position: absolute;
+  inset: auto -90px -140px auto;
+  width: 300px;
+  height: 300px;
+  border: 1px solid color-mix(in srgb, var(--amber) 15%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 42px rgba(229,173,66,.025), 0 0 0 90px rgba(229,173,66,.018);
+  pointer-events: none;
+}
+.hall-profile.current {
+  border-color: color-mix(in srgb, var(--cyan) 58%, var(--line));
+}
+.hall-rank-1 {
+  background:
+    radial-gradient(circle at 9% 4%, rgba(229,173,66,.16), transparent 31%),
+    linear-gradient(145deg, rgba(229,173,66,.035), transparent 50%),
+    var(--surface);
+  border-color: color-mix(in srgb, var(--amber) 55%, var(--line));
+}
+.hall-rank {
+  position: absolute;
+  top: 22px;
+  right: 25px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--amber);
+}
+.hall-rank svg { width: 20px; }
+.hall-rank strong { font: 500 24px "Barlow Condensed"; }
+.hall-identity {
+  display: grid;
+  grid-template-columns: 74px 1fr auto;
+  gap: 18px;
+  align-items: center;
+  padding-right: 58px;
+}
+.hall-avatar {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--amber);
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%);
+  color: var(--amber);
+  background: rgba(229,173,66,.08);
+  font: 500 34px "Barlow Condensed";
+}
+.hall-identity small,
+.hall-recent > small {
+  color: var(--cyan);
+  letter-spacing: .14em;
+  font-size: 11px;
+}
+.hall-identity h2 {
+  margin: 3px 0 1px;
+  font-size: clamp(25px, 2.2vw, 36px);
+}
+.hall-identity p { margin: 0; color: var(--muted); font-size: 13px; }
+.hall-level { display: flex; flex-direction: column; text-align: center; }
+.hall-level strong { font: 500 36px "Barlow Condensed"; color: var(--amber); }
+.hall-level span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
+.hall-overall { margin: 30px 0 22px; }
+.hall-overall > div { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.hall-overall strong { font: 500 31px "Barlow Condensed"; }
+.hall-overall span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+.hall-overall progress { width: 100%; height: 6px; }
+.hall-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.hall-metrics > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 0 8px;
+  padding: 17px 13px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.hall-metrics svg { grid-row: 1 / 3; width: 19px; color: var(--amber); }
+.hall-metrics strong { font: 500 21px "Barlow Condensed"; }
+.hall-metrics span { overflow: hidden; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; text-overflow: ellipsis; }
+.hall-recent { position: relative; z-index: 1; margin-top: 24px; min-height: 102px; }
+.hall-recent ul { display: grid; gap: 7px; margin: 10px 0 0; padding: 0; list-style: none; }
+.hall-recent li { padding-left: 16px; color: var(--text); font-size: 13px; }
+.hall-recent li::before { content: ""; display: inline-block; width: 5px; height: 5px; margin: 0 10px 2px -15px; background: var(--amber); transform: rotate(45deg); }
+.hall-recent p { color: var(--muted); font-size: 13px; }
+.hall-disciplines { margin-top: 54px; }
+.hall-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 20px; }
+.hall-section-heading h2 { margin: 0 0 6px; font-size: 31px; }
+.hall-section-heading p { margin: 0; color: var(--muted); }
+.hall-legend { display: grid; grid-template-columns: repeat(2, 120px); gap: 10px; text-align: right; color: var(--muted); font: 500 11px "Barlow Condensed"; text-transform: uppercase; letter-spacing: .08em; }
+.hall-domain-list { border-top: 1px solid var(--line); }
+.hall-domain-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.1fr) minmax(150px, 1fr) minmax(150px, 1fr);
+  gap: 25px;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  transition: background .2s ease;
+}
+.hall-domain-row:hover { background: rgba(255,255,255,.018); }
+.hall-domain-name { display: flex; flex-direction: column; gap: 3px; }
+.hall-domain-name strong { font: 500 17px "Barlow Condensed"; text-transform: uppercase; }
+.hall-domain-name span { color: var(--amber); font-size: 9px; letter-spacing: .1em; }
+.hall-domain-score { display: grid; grid-template-columns: 1fr 38px; gap: 10px; align-items: center; }
+.hall-domain-score progress { width: 100%; height: 5px; }
+.hall-domain-score b { color: var(--cyan); font: 500 14px "Barlow Condensed"; text-align: right; }
+.hall-domain-score.second progress::-webkit-progress-value { background: var(--amber); }
+.hall-domain-score.second b { color: var(--amber); }
+
+@media (max-width: 1050px) {
+  .hall-podium { grid-template-columns: 1fr; }
+  .hall-profile { padding: 27px; }
+}
+
+@media (max-width: 700px) {
+  .hall-local-note { text-align: left; }
+  .hall-podium { margin-top: 15px; }
+  .hall-profile { padding: 21px 17px; }
+  .hall-rank { top: 16px; right: 17px; }
+  .hall-identity { grid-template-columns: 58px 1fr; padding-right: 42px; gap: 12px; }
+  .hall-avatar { width: 56px; height: 56px; font-size: 27px; }
+  .hall-level { grid-column: 2; flex-direction: row; align-items: baseline; gap: 7px; text-align: left; }
+  .hall-level strong { font-size: 25px; }
+  .hall-metrics { grid-template-columns: repeat(2, 1fr); }
+  .hall-section-heading { display: block; }
+  .hall-legend { display: none; }
+  .hall-domain-row { grid-template-columns: 1fr; gap: 9px; padding: 16px 5px; }
+  .hall-domain-score.first::before { content: "SinbodWayne"; }
+  .hall-domain-score.second::before { content: "KyanWayne"; }
+  .hall-domain-score { grid-template-columns: 85px 1fr 38px; }
+  .hall-domain-score::before { color: var(--muted); font: 500 11px "Barlow Condensed"; }
+}
 .search {
   display: flex;
   align-items: center;

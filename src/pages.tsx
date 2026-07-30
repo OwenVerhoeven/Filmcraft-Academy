@@ -25,6 +25,7 @@ import {
 import { allSkills, domains, finalBoss } from "./content/curriculum";
 import { SkillNode } from "./components/SkillNode";
 import { LessonVisual } from "./components/LessonVisual";
+import { DomainIcon } from "./components/TopicIcon";
 import { useProgress } from "./state";
 import {
   achievements,
@@ -43,6 +44,48 @@ import { localizeSkill } from "./content/localize";
 
 const mastered = (id: string, p: ReturnType<typeof useProgress>["progress"]) =>
   p.skills[id]?.state === "mastered";
+
+const constellationPoints = [
+  [50, 8], [70, 13], [86, 25], [93, 44], [90, 65], [76, 82], [57, 91], [37, 89],
+  [19, 78], [8, 60], [8, 38], [19, 20], [50, 28], [70, 47], [52, 70], [30, 49],
+];
+
+function DomainConstellation({ progress }: { progress: ReturnType<typeof useProgress>["progress"] }) {
+  return (
+    <div className="constellation-field">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <ellipse cx="50" cy="50" rx="44" ry="42" />
+        <ellipse cx="50" cy="50" rx="28" ry="25" />
+        {domains.map((domain, index) => {
+          const [x, y] = constellationPoints[index] ?? [50, 50];
+          return <path key={domain.id} d={`M 50 50 Q ${(50 + x) / 2 + (index % 2 ? 4 : -4)} ${(50 + y) / 2} ${x} ${y}`} />;
+        })}
+      </svg>
+      <div className="constellation-core">
+        <Sparkles />
+        <strong>{completePercent(progress)}%</strong>
+        <span>FILMCRAFT</span>
+      </div>
+      {domains.map((domain, index) => {
+        const [x, y] = constellationPoints[index] ?? [50, 50];
+        const percent = domainPercent(domain.id, progress);
+        return (
+          <Link
+            className={`constellation-star ${percent === 100 ? "complete" : ""}`}
+            to={`/talent-tree/${domain.id}`}
+            key={domain.id}
+            style={{ left: `${x}%`, top: `${y}%`, "--color": domain.color, "--delay": `${index * -0.37}s` } as React.CSSProperties}
+            aria-label={`${domain.title}: ${percent}% complete`}
+          >
+            <i><DomainIcon domainId={domain.id} /></i>
+            <span>{domain.short}</span>
+            <small>{percent}%</small>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 export function Dashboard() {
   const { progress } = useProgress();
   const { language } = useLanguage();
@@ -176,22 +219,7 @@ export function Dashboard() {
             <h2>Domain constellation</h2>
             <Link to="/worlds">View domains</Link>
           </div>
-          <div className="orbit">
-            {domains.slice(0, 10).map((d, i) => (
-              <Link
-                to={`/world/${d.id}`}
-                key={d.id}
-                style={{ "--i": i, "--color": d.color } as React.CSSProperties}
-              >
-                <span>{domainPercent(d.id, progress)}%</span>
-                <small>{d.short}</small>
-              </Link>
-            ))}
-            <strong>
-              {completePercent(progress)}
-              <small>%</small>
-            </strong>
-          </div>
+          <DomainConstellation progress={progress} />
         </div>
       </section>
     </div>
@@ -341,6 +369,7 @@ export function SkillView() {
   if (!skill) return <NavigateWorld />;
   const state = stateFor(skill, ctx.progress);
   const sp = ctx.progress.skills[skill.id];
+  const started = ctx.progress.activeSkillId === skill.id || Boolean(sp);
   if (state === "locked")
     return (
       <div className="page locked-page">
@@ -412,12 +441,14 @@ export function SkillView() {
           </span>
           <span>{Object.values(skill.xp).reduce((a, b) => a + b, 0)} XP</span>
         </div>
-        {!ctx.progress.activeSkillId && (
-          <button className="button" onClick={() => ctx.activate(skill)}>
-            <Play />
-            {t("beginSkill")}
-          </button>
-        )}
+        <button
+          className={`button lesson-action ${started ? "is-complete" : "is-ready"}`}
+          disabled={started}
+          onClick={() => ctx.activate(skill)}
+        >
+          {started ? <Check /> : <Play />}
+          {started ? (nl ? "Les gestart en opgeslagen" : "Lesson started · saved") : t("beginSkill")}
+        </button>
       </div>
       <div className="lesson-layout">
         <article>
@@ -455,15 +486,14 @@ export function SkillView() {
                 ))}
               </div>
             </div>
-            {!sp?.theory && (
-              <button
-                className="button"
-                onClick={() => ctx.completeTheory(skill)}
-              >
-                <Check />
-                {nl ? "Theorie als voltooid markeren" : "Mark theory complete"}
-              </button>
-            )}
+            <button
+              className={`button lesson-action ${sp?.theory ? "is-complete" : started ? "is-ready" : ""}`}
+              disabled={!started || sp?.theory}
+              onClick={() => ctx.completeTheory(skill)}
+            >
+              <Check />
+              {sp?.theory ? (nl ? "Theorie voltooid · opgeslagen" : "Theory complete · saved") : (nl ? "Theorie als voltooid markeren" : "Mark theory complete")}
+            </button>
           </section>
           <section>
             <h2>{t("knowledgeCheck")}</h2>
@@ -510,13 +540,13 @@ export function SkillView() {
               </div>
             )}
             <button
-              className="button"
+              className={`button lesson-action ${sp?.check ? "is-complete" : answer !== null && skill.check.correct.includes(answer) ? "is-ready" : ""}`}
               disabled={
-                answer === null || !skill.check.correct.includes(answer)
+                Boolean(sp?.check) || answer === null || !skill.check.correct.includes(answer)
               }
               onClick={() => ctx.submitCheck(skill)}
             >
-              {nl ? "Antwoord indienen" : "Submit check"}
+              {sp?.check ? (nl ? "Kennistoets behaald · opgeslagen" : "Knowledge check passed · saved") : (nl ? "Antwoord indienen" : "Submit check")}
             </button>
           </section>
           <section>
@@ -536,11 +566,12 @@ export function SkillView() {
                 : skill.assignment.deliverable}
             </p>
             <button
-              className="button secondary"
+              className={`button lesson-action ${sp?.practice ? "is-complete" : sp?.check ? "is-ready" : ""}`}
+              disabled={!sp?.check || sp.practice}
               onClick={() => ctx.submitPractice(skill)}
             >
               <Check />
-              {nl ? "Praktijk als voltooid markeren" : "Mark practice complete"}
+              {sp?.practice ? (nl ? "Praktijk voltooid · opgeslagen" : "Practice complete · saved") : (nl ? "Praktijk als voltooid markeren" : "Mark practice complete")}
             </button>
           </section>
           <section>
@@ -615,12 +646,12 @@ export function SkillView() {
               }
             />
             <button
-              className="button"
+              className={`button lesson-action ${sp?.evidence ? "is-complete" : reflection.trim().length >= 20 ? "is-ready" : ""}`}
               disabled={reflection.trim().length < 20}
               onClick={() => ctx.saveEvidence(skill, reflection, link)}
             >
               <Images />
-              {nl ? "Bewijs opslaan" : "Save evidence"}
+              {sp?.evidence ? (nl ? "Opgeslagen bewijs bijwerken" : "Update saved evidence") : (nl ? "Bewijs opslaan" : "Save evidence")}
             </button>
           </section>
           <section>
@@ -674,8 +705,8 @@ export function SkillView() {
             </div>
           ))}
           <button
-            className="button major"
-            disabled={!canMaster}
+            className={`button major lesson-action ${sp?.state === "mastered" ? "is-complete" : canMaster ? "is-ready" : ""}`}
+            disabled={!canMaster || sp?.state === "mastered"}
             onClick={() => {
               ctx.master(skill);
               setCelebrating(true);
@@ -684,7 +715,7 @@ export function SkillView() {
             }}
           >
             <Flame />
-            {t("masterSkill")}
+            {sp?.state === "mastered" ? (nl ? "Beheersing opgeslagen" : "Mastery recorded · saved") : t("masterSkill")}
           </button>
           <p>
             {canMaster
@@ -783,9 +814,10 @@ export function Character() {
               ? "FilmCraft Master"
               : (specs[0]?.title ?? "Apprentice Image Maker")}
           </h1>
-          <p>
-            A profile derived from demonstrated mastery, never purchased points.
-          </p>
+          <blockquote className="cinema-quote">
+            “Cinema is a matter of what’s in the frame and what’s out.”
+            <cite>— Martin Scorsese</cite>
+          </blockquote>
         </div>
         <div className="character-stats">
           <div>

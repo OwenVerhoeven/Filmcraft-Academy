@@ -1,6 +1,6 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link, useParams } from "./router";
-import { ArrowRight, Check, Crown, GitBranch, Lock, Star } from "lucide-react";
+import { ArrowRight, Check, Crown, GitBranch, Lock, Star, X } from "lucide-react";
 import { domains } from "./content/curriculum";
 import type { Skill } from "./content/model";
 import { domainPercent, stateFor } from "./lib/progression";
@@ -58,24 +58,25 @@ export function TalentTreeOverview() {
   );
 }
 const roman = ["", "I", "II", "III", "IV", "V", "VI"];
-const skillLayout = (skills: Skill[]) => {
+const skillLayout = (skills: Skill[], portrait: boolean) => {
   const tiers = [...new Set(skills.map((s) => s.tier))].sort((a, b) => a - b);
+  let cursor = 0;
+  const rowHeight = portrait ? 176 : 164;
+  // Portrait tier captions occupy the full band header; nodes start beneath it.
+  const topPadding = portrait ? 150 : 80;
+  const bottomPadding = portrait ? 56 : 64;
   const tierData = tiers.map((tier) => {
     const count = skills.filter((skill) => skill.tier === tier).length;
-    return { tier, count, subrows: Math.ceil(count / 4) };
+    const columns = Math.min(portrait ? 2 : 4, count);
+    return { tier, count, columns, subrows: Math.ceil(count / columns) };
   });
-  const totalWeight = tierData.reduce(
-    (sum, tier) => sum + tier.subrows + 0.55,
-    0,
-  );
-  let cursor = 5;
   const rows = tierData.map((tier) => {
-    const height = ((tier.subrows + 0.55) / totalWeight) * 90;
+    const height = topPadding + tier.subrows * rowHeight + bottomPadding;
     const row = {
       ...tier,
       top: cursor,
       bottom: cursor + height,
-      y: cursor + height / 2,
+      y: cursor + 30,
     };
     cursor += height;
     return row;
@@ -84,31 +85,60 @@ const skillLayout = (skills: Skill[]) => {
     const row = rows.find((r) => r.tier === skill.tier)!;
     const peers = skills.filter((s) => s.tier === skill.tier);
     const position = peers.findIndex((s) => s.id === skill.id);
-    const columns = Math.min(4, peers.length);
+    const columns = row.columns;
     const column = position % columns;
     const subrow = Math.floor(position / columns);
-    const x = columns === 1 ? 50 : 18 + (column * 64) / (columns - 1);
-    const y = row.top + (row.bottom - row.top) * ((subrow + 0.5) / row.subrows);
+    const x =
+      columns === 1
+        ? 50
+        : portrait
+          ? 27 + (column * 46) / (columns - 1)
+          : 14 + (column * 72) / (columns - 1);
+    const y = row.top + topPadding + subrow * rowHeight;
     return [x, y];
   });
-  return { coords, rows };
+  return { coords, rows, height: Math.max(cursor, portrait ? 980 : 760) };
 };
+function usePortraitTree() {
+  const [portrait, setPortrait] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 700px)");
+    const update = () => setPortrait(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return portrait;
+}
 export function TalentTree() {
   const { id } = useParams();
   const domain = domains.find((d) => d.id === id);
   const { progress } = useProgress();
   const { t } = useLanguage();
-  const [selectedId, setSelectedId] = useState(
-    domain?.skills.find((s) => stateFor(s, progress) !== "locked")?.id ??
-      domain?.skills[0]?.id,
-  );
+  const [selectedId, setSelectedId] = useState<string>();
+  const portrait = usePortraitTree();
   const selected = domain?.skills.find((s) => s.id === selectedId);
-  const layout = useMemo(() => skillLayout(domain?.skills ?? []), [domain]);
-  const { coords, rows } = layout;
+  const layout = useMemo(
+    () => skillLayout(domain?.skills ?? [], portrait),
+    [domain, portrait],
+  );
+  const { coords, rows, height } = layout;
   const index = useMemo(
     () => new Map(domain?.skills.map((s, i) => [s.id, i])),
     [domain],
   );
+  useEffect(() => {
+    if (!selected) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedId(undefined);
+    };
+    document.addEventListener("keydown", close);
+    document.body.classList.add("modal-open");
+    return () => {
+      document.removeEventListener("keydown", close);
+      document.body.classList.remove("modal-open");
+    };
+  }, [selected]);
   if (!domain)
     return (
       <div className="page">
@@ -132,14 +162,14 @@ export function TalentTree() {
       </header>
       <div className="talent-stage">
         <div className="talent-map-wrap">
-          <div className="tier-guides" aria-hidden="true">
+          <div className="tier-guides" aria-hidden="true" style={{ height }}>
             {rows.slice(0, -1).map((row) => (
-              <i key={row.tier} style={{ top: `${row.bottom}%` }} />
+              <i key={row.tier} style={{ top: row.bottom }} />
             ))}
           </div>
           <div className="tier-labels">
             {rows.map((row, i) => (
-              <span key={row.tier} style={{ top: `${row.y}%` }}>
+              <span key={row.tier} style={{ top: row.y }}>
                 Tier {roman[row.tier]}
                 <small>
                   {i === 0
@@ -153,9 +183,9 @@ export function TalentTree() {
               </span>
             ))}
           </div>
-          <div className="talent-map">
+          <div className="talent-map" style={{ height }}>
             <svg
-              viewBox="0 0 100 100"
+              viewBox={`0 0 100 ${height}`}
               preserveAspectRatio="none"
               aria-hidden="true"
             >
@@ -213,8 +243,23 @@ export function TalentTree() {
             </span>
           </div>
         </div>
-        {selected && <TalentInspector skill={selected} />}
       </div>
+      {selected && (
+        <div
+          className="talent-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setSelectedId(undefined);
+          }}
+        >
+          <div className="talent-modal" role="dialog" aria-modal="true" aria-labelledby="talent-modal-title">
+            <button className="talent-modal-close" onClick={() => setSelectedId(undefined)} aria-label="Close skill details">
+              <X />
+            </button>
+            <TalentInspector skill={selected} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -240,7 +285,7 @@ function TalentNode({
   return (
     <button
       className={`talent-node ${state} ${selected ? "selected" : ""} ${boss ? "boss" : ""}`}
-      style={{ left: `${x}%`, top: `${y}%` }}
+      style={{ left: `${x}%`, top: y }}
       onClick={onSelect}
     >
       <span className="node-rank">{skill.tier}</span>
@@ -276,7 +321,7 @@ function TalentInspector({ skill }: { skill: Skill }) {
           </b>
         </div>
       </div>
-      <h2>{text.title}</h2>
+      <h2 id="talent-modal-title">{text.title}</h2>
       <p>{text.description}</p>
       <section>
         <h3>{t("prerequisites")}</h3>

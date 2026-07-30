@@ -3,8 +3,10 @@
 - **`npm.ps1` execution is disabled:** use `npm.cmd` on Windows.
 - **Blank page after deployment:** configure SPA fallback to `index.html` and confirm hashed asset MIME types.
 - **Old UI after release:** close the installed app, reopen it online, and allow the auto-updating service worker to refresh; clear only cache, not site data, unless a backup exists.
-- **Cloudflare custom domain shows stale UI:** remove any zone-level Cache Everything/Page Rule and let Pages manage its own deployment cache; if necessary purge the zone cache once.
-- **Direct route returns 404 on another host:** configure that host's SPA fallback to `/index.html`. Cloudflare Pages does this automatically when no top-level `404.html` exists.
+- **Cloudflare custom domain shows `Hello world`:** the hostname is still serving the placeholder Worker. Set the build command to `npm run build`, keep `npx wrangler deploy` as the deploy command, deploy the latest commit, and confirm the hostname route points to `filmcraft-academy`.
+- **Cloudflare build never finishes:** `npm run dev` starts a persistent Vite server. Replace it with `npm run build` under **Settings → Build**.
+- **Cloudflare custom domain shows stale UI:** remove any zone-level Cache Everything/Page Rule and let Workers static assets manage deployment caching; if necessary purge the zone cache once.
+- **Direct route returns 404 on another host:** configure that host's SPA fallback to `/index.html`. On Cloudflare Workers this is configured by `assets.not_found_handling` in `wrangler.jsonc`.
 - **Login is visible but site is publicly downloadable:** expected for static client-side profiles. Use Cloudflare Access on the hostname for real access control.
 - **Progress missing:** confirm the same browser profile and exact origin/port. Restore from Settings if the origin changed.
 - **Evidence file too large:** use an external link or local reference. Large uploads are intentionally unnecessary.

@@ -4,33 +4,34 @@
 
 Run `npm.cmd install`, `npm.cmd run check`, then `npm.cmd run preview`. The `dist/` directory is a static SPA/PWA artifact.
 
-## Cloudflare Pages from GitHub
+## Cloudflare Workers from GitHub
 
-The repository is ready for Cloudflare's Git integration. Create a Pages project from the GitHub repository and enter:
+The repository is ready for Cloudflare Workers Builds. Connect the GitHub repository to the `filmcraft-academy` Worker and enter:
 
 | Setting | Value |
 | --- | --- |
-| Framework preset | Vite (or None) |
 | Production branch | `main` |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 | Root directory | repository root |
 | Environment variables | none |
 
-Cloudflare installs the locked npm dependencies, runs the production build, and deploys `dist/`. Each push to `main` creates a production deployment; other branches and pull requests receive preview deployments.
+Cloudflare installs the locked npm dependencies, runs the production build, and Wrangler deploys `dist/` as Worker static assets. Each push to `main` creates a production deployment.
 
-The output deliberately has no top-level `404.html`. Cloudflare Pages therefore applies its built-in SPA fallback, so direct visits and refreshes on `/skill/...`, `/world/...`, and the other React routes resolve to `index.html`.
+Never set the build command to `npm run dev`. Vite's development server is intentionally long-running, so Cloudflare remains in the Building stage and never reaches deployment.
 
-Do not create a broad `/* /index.html 200` redirect. Cloudflare's SPA behavior already handles application routes, while an unconditional redirect can interfere with real hashed assets.
+`wrangler.jsonc` enables `not_found_handling: "single-page-application"`, so direct visits and refreshes on `/skill/...`, `/world/...`, and the other React routes resolve to `index.html`.
+
+Do not create a broad `/* /index.html 200` redirect. Cloudflare's Worker static-asset SPA behavior already handles application routes.
 
 ## Custom domain
 
 After the first successful deployment:
 
-1. Open **Workers & Pages → FilmCraft Academy → Custom domains**.
-2. Select **Set up a domain** and enter the intended hostname.
-3. For an apex domain, the zone and nameservers must be on Cloudflare. For a subdomain, complete the Pages custom-domain flow before adding or changing its CNAME.
-4. Avoid a custom **Cache Everything** rule. Pages and the PWA already manage deployment and offline caching.
+1. Open **Workers & Pages → filmcraft-academy → Settings → Domains & Routes**.
+2. Add the intended hostname as a custom domain.
+3. Confirm the hostname is attached to the newly deployed `filmcraft-academy` Worker, not an older placeholder Worker.
+4. Avoid a custom **Cache Everything** rule. Workers static assets and the PWA already manage deployment and offline caching.
 
 ## Privacy and authentication
 
@@ -42,7 +43,7 @@ Anyone who can load the public site can download its lesson bundle. Progress and
 
 Deploy `dist/` to any HTTPS static host. Configure unknown paths to rewrite to `/index.html` so client routes work. Preserve `manifest.webmanifest`, `sw.js`, hashed assets and correct JavaScript/CSS MIME types. No server secrets are required.
 
-Examples include Cloudflare Pages, Netlify, Vercel static output, or self-controlled nginx/Caddy. Access control belongs at the hosting layer when the URL is internet reachable.
+Examples include Cloudflare Workers static assets, Netlify, Vercel static output, or self-controlled nginx/Caddy. Access control belongs at the hosting layer when the URL is internet reachable.
 
 ## Future Supabase adapter
 

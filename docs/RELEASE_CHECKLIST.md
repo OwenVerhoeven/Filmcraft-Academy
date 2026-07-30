@@ -14,7 +14,7 @@
 - [x] Placeholder, graph, reference and schema audits clean
 - [x] Security exception documented
 - [x] Backup, deployment, authoring and troubleshooting guides complete
-- [x] Cloudflare Pages build settings and custom-domain flow documented
+- [x] Cloudflare Workers build settings and custom-domain flow documented
 - [x] Direct SPA routes return the application without a custom 404 page
 - [x] Security headers, web manifest, favicon and first-party service worker ship in `dist/`
 - [x] Node 22, lockfile installation and GitHub release-gate workflow configured

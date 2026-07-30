@@ -34,16 +34,16 @@ Progress is stored in this browser profile's IndexedDB. Use **Settings → Expor
 
 Documentation: [setup and deployment](docs/DEPLOYMENT.md), [backup and recovery](docs/BACKUP_AND_EXPORT.md), [curriculum authoring](docs/CURRICULUM_AUTHORING.md), [troubleshooting](docs/TROUBLESHOOTING.md), and [release checklist](docs/RELEASE_CHECKLIST.md).
 
-## Cloudflare Pages
+## Cloudflare Workers
 
 Connect this repository under **Workers & Pages → Create → Pages → Import an existing Git repository** and use:
 
 - Production branch: `main`
 - Build command: `npm run build`
-- Build output directory: `dist`
+- Deploy command: `npx wrangler deploy`
 - Root directory: `/` (repository root)
 - Environment variables: none
 
-After the first deployment, open the Pages project and choose **Custom domains → Set up a domain**. Direct routes such as `/world/camera` work on refresh because Cloudflare Pages recognizes this output as a single-page application. Do not add a `404.html` file or a catch-all `_redirects` rule.
+Do not use `npm run dev` as the build command: it starts a development server and never completes. Wrangler uploads `dist` as Worker static assets. Direct routes such as `/world/camera` work on refresh because `wrangler.jsonc` enables Cloudflare's single-page-application fallback.
 
-The two in-app accounts are local browser profiles, not server authentication. Their progress remains in IndexedDB on each browser/origin. If the site must be private, protect the Pages domain with Cloudflare Access; do not rely on the in-app password screen as an internet security boundary.
+After deployment, attach the hostname under **Settings → Domains & Routes**. The two in-app accounts are local browser profiles, not server authentication. Their progress remains in IndexedDB on each browser/origin. If the site must be private, protect the domain with Cloudflare Access; do not rely on the in-app password screen as an internet security boundary.

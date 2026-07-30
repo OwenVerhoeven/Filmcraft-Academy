@@ -2,7 +2,7 @@
 
 ## Local production
 
-Run `npm.cmd install`, `npm.cmd run check`, then `npm.cmd run preview`. The `dist/` directory is a static SPA/PWA artifact.
+Run `npm.cmd install`, `npm.cmd run check`, then `npx.cmd wrangler dev`. Wrangler serves the SPA, account API and local persistent Durable Objects together. `npm.cmd run dev` remains useful for frontend-only work and falls back to device-local login when the local Worker API is absent.
 
 ## Cloudflare Workers from GitHub
 
@@ -16,7 +16,7 @@ The repository is ready for Cloudflare Workers Builds. Connect the GitHub reposi
 | Root directory | repository root |
 | Environment variables | none |
 
-Cloudflare installs the locked npm dependencies, runs the production build, and Wrangler deploys `dist/` as Worker static assets. Each push to `main` creates a production deployment.
+Cloudflare installs the locked npm dependencies, runs the production build, and Wrangler deploys the API Worker, account-specific Durable Object storage and `dist/` static assets together. The first deployment provisions the SQLite-backed `ProgressStore` namespace automatically. Each push to `main` creates a production deployment.
 
 Never set the build command to `npm run dev`. Vite's development server is intentionally long-running, so Cloudflare remains in the Building stage and never reaches deployment.
 
@@ -35,16 +35,10 @@ After the first successful deployment:
 
 ## Privacy and authentication
 
-FilmCraft is a static local-first PWA. `SinbodWayne` and `KyanWayne` select isolated IndexedDB records on the current browser. The password check runs in the downloaded JavaScript and is therefore a convenience/profile boundary, not secure server authentication.
+FilmCraft uses server-side password verification with PBKDF2-derived hashes, random revocable bearer sessions, per-client login throttling and one isolated Durable Object per account. Progress and evidence metadata synchronize through same-origin `/api` routes over HTTPS. IndexedDB is an offline cache, not the sole source of persistence.
 
-Anyone who can load the public site can download its lesson bundle. Progress and reflections are not uploaded to Cloudflare, but a public visitor can create their own local browser state. To restrict access, enable **Cloudflare Zero Trust → Access → Applications** for the production hostname and allow only the desired email identities.
+The Hall of Fame exposes only progress statistics between authenticated FilmCraft accounts; reflections and evidence text are omitted. Anyone who can load the public site can still download its lesson bundle. To restrict the entire application, enable **Cloudflare Zero Trust → Access → Applications** for the production hostname.
 
-## Static hosting
+## Cloudflare requirement
 
-Deploy `dist/` to any HTTPS static host. Configure unknown paths to rewrite to `/index.html` so client routes work. Preserve `manifest.webmanifest`, `sw.js`, hashed assets and correct JavaScript/CSS MIME types. No server secrets are required.
-
-Examples include Cloudflare Workers static assets, Netlify, Vercel static output, or self-controlled nginx/Caddy. Access control belongs at the hosting layer when the URL is internet reachable.
-
-## Future Supabase adapter
-
-Expected metadata is under 20 MB per user; storage risk comes from media, which V1 deliberately keeps external. A cloud adapter should synchronize progress records with optimistic version checks, use private buckets only for optional small files, retain JSON export, and never make large video upload mandatory. Apply database migrations and row-level security before enabling it.
+The frontend can still render on another static host, but cross-device authentication and synchronization require the configured Cloudflare Worker and Durable Object binding. No environment variables, manually created database IDs or repository secrets are required.

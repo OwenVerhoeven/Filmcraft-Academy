@@ -8,12 +8,14 @@
   },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "dev:cloud": "npm run build && wrangler dev",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:watch": "vitest",
     "validate": "tsx scripts/validate-curriculum.ts",
-    "check": "npm run validate && npm test && npm run build"
+    "check": "npm run validate && npm test && npm run build",
+    "cf:types": "wrangler types worker-configuration.d.ts"
   },
   "dependencies": {
     "@noble/hashes": "^2.2.0",
@@ -24,8 +26,10 @@
     "zod": "latest"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260730.1",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
+    "@types/node": "^26.1.2",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "6.0.4",

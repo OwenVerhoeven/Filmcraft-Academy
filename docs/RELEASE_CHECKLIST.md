@@ -19,3 +19,7 @@
 - [x] Security headers, web manifest, favicon and first-party service worker ship in `dist/`
 - [x] Node 22, lockfile installation and GitHub release-gate workflow configured
 - [x] Production and development dependencies audit with zero known vulnerabilities
+- [x] Server-side account authentication and revocable sessions implemented
+- [x] Cross-device progress sync uses one isolated Durable Object per account
+- [x] Concurrent-device conflicts merge mastery and XP-event evidence safely
+- [x] Service worker bypasses all authenticated API traffic

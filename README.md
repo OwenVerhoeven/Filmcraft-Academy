@@ -1,6 +1,6 @@
 # FilmCraft Academy
 
-A complete private, local-first filmmaking curriculum PWA: 16 interconnected domains, 142 masteries, evidence-backed progression, DaVinci Resolve 21 workflows, personal equipment training and the **BEGGIN' FOR FUEL** final boss.
+A complete private filmmaking curriculum PWA with cross-device progress sync: 16 interconnected domains, 142 masteries, evidence-backed progression, DaVinci Resolve 21 workflows, personal equipment training and the **BEGGIN' FOR FUEL** final boss.
 
 ## Run locally
 
@@ -30,7 +30,7 @@ This validates curriculum/schema/graph/content, runs unit tests and produces the
 
 ## Data
 
-Progress is stored in this browser profile's IndexedDB. Use **Settings → Export backup** regularly. Import accepts FilmCraft V1 JSON backups. Large media stays in user-controlled storage; save an external URL or local reference in evidence.
+Progress is written immediately to this browser's IndexedDB and synchronized to an account-specific Cloudflare Durable Object. Use **Settings → Export backup** for an additional user-owned copy. Import accepts FilmCraft V1 JSON backups. Large media stays in user-controlled storage; save an external URL or local reference in evidence.
 
 Documentation: [setup and deployment](docs/DEPLOYMENT.md), [backup and recovery](docs/BACKUP_AND_EXPORT.md), [curriculum authoring](docs/CURRICULUM_AUTHORING.md), [troubleshooting](docs/TROUBLESHOOTING.md), and [release checklist](docs/RELEASE_CHECKLIST.md).
 
@@ -46,4 +46,4 @@ Connect this repository under **Workers & Pages → Create → Pages → Import 
 
 Do not use `npm run dev` as the build command: it starts a development server and never completes. Wrangler uploads `dist` as Worker static assets. Direct routes such as `/world/camera` work on refresh because `wrangler.jsonc` enables Cloudflare's single-page-application fallback.
 
-After deployment, attach the hostname under **Settings → Domains & Routes**. The two in-app accounts are local browser profiles, not server authentication. Their progress remains in IndexedDB on each browser/origin. If the site must be private, protect the domain with Cloudflare Access; do not rely on the in-app password screen as an internet security boundary.
+After deployment, attach the hostname under **Settings → Domains & Routes**. The Worker performs password verification, issues revocable sessions and keeps each account in a separate Durable Object. IndexedDB remains the offline cache; reconnecting merges and synchronizes progress. The lesson bundle itself is public to anyone who can reach the URL, so add Cloudflare Access if the entire academy must be private.

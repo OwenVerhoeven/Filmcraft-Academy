@@ -13,6 +13,7 @@ const copy = {
     quests: "Quests",
     character: "Character",
     achievements: "Achievements",
+    hallOfFame: "Hall of Fame",
     codex: "Codex",
     portfolio: "Portfolio",
     finalBoss: "Final Boss",
@@ -49,6 +50,9 @@ const copy = {
     references: "References",
     beginSkill: "Begin skill",
     masterSkill: "Master skill",
+    cloudSynced: "Cloud synced",
+    syncing: "Syncing",
+    localSave: "Local save",
   },
   nl: {
     journey: "Reis",
@@ -56,6 +60,7 @@ const copy = {
     quests: "Opdrachten",
     character: "Personage",
     achievements: "Prestaties",
+    hallOfFame: "Hall of Fame",
     codex: "Codex",
     portfolio: "Portfolio",
     finalBoss: "Eindbaas",
@@ -92,6 +97,9 @@ const copy = {
     references: "Bronnen",
     beginSkill: "Start vaardigheid",
     masterSkill: "Beheers vaardigheid",
+    cloudSynced: "Cloud opgeslagen",
+    syncing: "Synchroniseren",
+    localSave: "Lokaal opgeslagen",
   },
 } as const;
 type Key = keyof typeof copy.en;

@@ -15,6 +15,7 @@ import {
 import { TalentTree, TalentTreeOverview } from "./TalentTrees";
 import { useAuth } from "./auth";
 import { Login } from "./Login";
+import { HallOfFame } from "./HallOfFame";
 
 export function App() {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ export function App() {
         <Route path="/quests" element={<Quests />} />
         <Route path="/character" element={<Character />} />
         <Route path="/achievements" element={<Achievements />} />
+        <Route path="/hall-of-fame" element={<HallOfFame />} />
         <Route path="/codex" element={<Codex />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/settings" element={<SettingsView />} />

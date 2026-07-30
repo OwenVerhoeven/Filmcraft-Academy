@@ -7,8 +7,10 @@
 - **Cloudflare build never finishes:** `npm run dev` starts a persistent Vite server. Replace it with `npm run build` under **Settings → Build**.
 - **Cloudflare custom domain shows stale UI:** remove any zone-level Cache Everything/Page Rule and let Workers static assets manage deployment caching; if necessary purge the zone cache once.
 - **Direct route returns 404 on another host:** configure that host's SPA fallback to `/index.html`. On Cloudflare Workers this is configured by `assets.not_found_handling` in `wrangler.jsonc`.
-- **Login is visible but site is publicly downloadable:** expected for static client-side profiles. Use Cloudflare Access on the hostname for real access control.
-- **Progress missing:** confirm the same browser profile and exact origin/port. Restore from Settings if the origin changed.
+- **Header says LOCAL SAVE:** the frontend cannot reach the account API. Confirm the latest Worker deployment includes the `PROGRESS` Durable Object binding and reconnect; local changes remain in IndexedDB until sync succeeds.
+- **Login works in frontend-only development but does not sync:** use `npx wrangler dev` to run the Worker API and local Durable Object storage, rather than Vite alone.
+- **Lesson bundle is publicly downloadable:** account progress is authenticated, but static curriculum assets are public. Use Cloudflare Access if the whole hostname must be private.
+- **Progress seems behind on a new device:** keep the page online until the header reads CLOUD SYNCED. Restore a JSON backup from Settings only if the cloud record itself was intentionally reset or damaged.
 - **Evidence file too large:** use an external link or local reference. Large uploads are intentionally unnecessary.
 - **Skill remains locked:** open its tree and inspect the named prerequisites; cross-tree requirements are labeled.
 - **PWA install action absent:** use localhost or HTTPS, verify `manifest.webmanifest` and service worker load, and reload once.

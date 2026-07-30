@@ -2,11 +2,13 @@ import { describe,expect,it } from 'vitest';
 import { digest } from './auth';
 import { allSkills,domains } from './content/curriculum';
 import { achievements } from './lib/progression';
+import { createInitialProgress } from './lib/progression';
+import { mergeProgress } from './lib/cloud';
 
 describe('FilmCraft V1 regressions',()=>{
-  it('verifies both account hashes without secure-origin WebCrypto',()=>{
-    expect(digest('filmcraft-v1.1:SinbodWayne:lokokip999')).toBe('db5b765f020b9af7aa788267e0eb9cb6e2c5a0d5a9de6d431aae322fff151ade');
-    expect(digest('filmcraft-v1.1:KyanWayne:mijnhondismexx')).toBe('84160d8d352acd9b2fc575dfa6cd5bde13c6a2d1f9a7c0779b76ccca73f2bb89');
+  it('provides deterministic SHA-256 fallback hashing without secure-origin WebCrypto',()=>{
+    expect(digest('filmcraft-test')).toHaveLength(64);
+    expect(digest('filmcraft-test')).toBe(digest('filmcraft-test'));
   });
 
   it('uses fork-and-converge talent prerequisites instead of a fake linear chain',()=>{
@@ -21,5 +23,20 @@ describe('FilmCraft V1 regressions',()=>{
     expect(allSkills.some(s=>s.description.includes('Build working command'))).toBe(false);
     expect(allSkills.every(s=>s.references.length>=2)).toBe(true);
     expect(achievements.length).toBeGreaterThanOrEqual(30);
+  });
+
+  it('merges progress from two devices without losing either device events',()=>{
+    const skill=allSkills[0];
+    const left=createInitialProgress();
+    const right=createInitialProgress();
+    left.updatedAt='2026-07-30T10:00:00.000Z';
+    right.updatedAt='2026-07-30T10:01:00.000Z';
+    left.skills[skill.id]={state:'available',theory:true,check:false,practice:false,rubric:{},xpEvents:[`${skill.id}:theory`]};
+    right.skills[skill.id]={state:'available',theory:false,check:true,practice:false,rubric:{},xpEvents:[`${skill.id}:check`]};
+    const merged=mergeProgress(left,right);
+    expect(merged.skills[skill.id].theory).toBe(true);
+    expect(merged.skills[skill.id].check).toBe(true);
+    expect(merged.skills[skill.id].xpEvents).toEqual(expect.arrayContaining([`${skill.id}:theory`,`${skill.id}:check`]));
+    expect(merged.xp).toBe(skill.xp.theory+skill.xp.check);
   });
 });

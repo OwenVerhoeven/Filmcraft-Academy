@@ -13,6 +13,9 @@ import {
   Menu,
   X,
   LogOut,
+  Medal,
+  Cloud,
+  CloudOff,
 } from "lucide-react";
 import { NavLink } from "../router";
 import { useProgress } from "../state";
@@ -30,6 +33,7 @@ const nav = [
   ["/quests", "quests", ScrollText],
   ["/character", "character", UserRound],
   ["/achievements", "achievements", Trophy],
+  ["/hall-of-fame", "hallOfFame", Medal],
   ["/codex", "codex", BookOpen],
   ["/portfolio", "portfolio", Images],
   ["/final-boss", "finalBoss", Crown],
@@ -37,8 +41,8 @@ const nav = [
 ] as const;
 export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
-  const { progress } = useProgress();
-  const { user, logout } = useAuth();
+  const { progress, syncState } = useProgress();
+  const { user, logout, cloudConnected } = useAuth();
   const { t } = useLanguage();
   const level = levelForXp(progress.xp),
     from = xpForLevel(level),
@@ -94,7 +98,14 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <div className="account-chip">
             <span>
-              <small>FILMMAKER</small>
+              <small className={`cloud-state ${syncState}`} title={
+                syncState === "synced" ? "Progress synced across devices" :
+                syncState === "syncing" ? "Syncing progress" :
+                cloudConnected ? "Cloud temporarily unavailable" : "Saved on this device"
+              }>
+                {syncState === "synced" || syncState === "syncing" ? <Cloud /> : <CloudOff />}
+                {syncState === "synced" ? t("cloudSynced") : syncState === "syncing" ? t("syncing") : t("localSave")}
+              </small>
               <b>{user}</b>
             </span>
             <button onClick={logout} aria-label="Log out">

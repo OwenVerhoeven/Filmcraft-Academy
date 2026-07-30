@@ -1,4 +1,4 @@
-const CACHE = "filmcraft-shell-v1";
+const CACHE = "filmcraft-shell-v2";
 const SHELL = ["/", "/icon.svg", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -38,6 +38,9 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  // Account APIs must always reach the Worker and must never enter a shared
+  // service-worker cache.
+  if (url.pathname.startsWith("/api/")) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(

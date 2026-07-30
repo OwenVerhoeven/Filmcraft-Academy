@@ -78,7 +78,7 @@ export function Login() {
           {busy ? "Verifying…" : "Enter journey"}
         </button>
         <small className="login-note">
-          Progress and evidence remain isolated per account on this device.
+          Progress syncs securely across devices and remains isolated per account.
         </small>
       </form>
     </main>

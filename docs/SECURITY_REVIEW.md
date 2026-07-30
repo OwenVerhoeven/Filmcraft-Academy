@@ -1,9 +1,11 @@
 # Security Review
 
-The V1 has no backend, server actions, authentication tokens, secrets, remote writes or HTML injection. Lesson content is code-owned; reflections render as React text. External evidence links open with `noopener`/`noreferrer`. Imports validate the FilmCraft format/version before persistence. Reset is explicitly confirmed.
+FilmCraft's Cloudflare Worker performs password verification using PBKDF2-SHA-256 derived hashes and constant-time comparison. Successful login creates a cryptographically random 256-bit bearer token. Only its SHA-256 digest is stored, sessions expire after 30 days, logout revokes the active token, and repeated failures are throttled per account and connecting client.
 
-`npm audit --omit=dev` reports the React Router RSC-action advisory GHSA-qwww-vcr4-c8h2 against 7.18.2. This static BrowserRouter SPA does not use React Server Components, framework actions, SSR, action routes or a server request handler, so the vulnerable execution path is not present. The dependency is pinned and should be upgraded when the advisory range has a non-regressing patched client release. Development-only audit findings originate in build/PWA transitive tooling and are not shipped in `dist/`.
+Each FilmCraft account maps deterministically to a separate SQLite-backed Durable Object. Progress writes use optimistic revisions. When two devices write against the same revision, the client merges evidence-backed completion fields and XP-event receipts before retrying, avoiding silent last-write-wins data loss.
 
-Hosting remains private by default. Internet deployment must add access control at the host and HTTPS. IndexedDB data is readable by anyone with access to the same local OS/browser profile; this is a single-user trust assumption, not encryption.
+API responses use `Cache-Control: no-store`; the service worker explicitly bypasses every `/api/` request. Request bodies are bounded and validated, SQL uses bound parameters, and logs do not include credentials, tokens, progress payloads or reflections. The Hall of Fame returns only a sanitized progress projection and excludes reflection and evidence text.
 
-V1.1 adds two local accounts. Source contains salted password-verification hashes, never plaintext credentials, and progress is separated by account-keyed IndexedDB records. This protects against accidental cross-use on the shared device; it is not a substitute for server-side authentication against a malicious local user.
+The browser keeps an IndexedDB cache for offline use. Anyone with access to the same operating-system browser profile can inspect that cache or an active session token; this is a normal local-device trust boundary. The downloadable curriculum remains public unless the hostname is additionally protected by Cloudflare Access.
+
+`npm audit` currently reports zero known production or development vulnerabilities. Static CSP, frame, MIME-sniffing, referrer and permissions headers remain enabled.

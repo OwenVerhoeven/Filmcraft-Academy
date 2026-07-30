@@ -31,6 +31,11 @@ export function BrowserRouter({ children }: { children: ReactNode }) {
       pathname,
       navigate(to, replace = false) {
         if (to === pathname) return;
+        window.dispatchEvent(
+          new CustomEvent("filmcraft:navigate", {
+            detail: { from: pathname, to },
+          }),
+        );
         window.history[replace ? "replaceState" : "pushState"]({}, "", to);
         setPathname(window.location.pathname);
         window.scrollTo({ top: 0, behavior: "instant" });
@@ -47,6 +52,10 @@ function useRouter() {
   const value = useContext(RouterContext);
   if (!value) throw new Error("BrowserRouter is missing");
   return value;
+}
+
+export function usePathname() {
+  return useRouter().pathname;
 }
 
 export function useNavigate() {
@@ -76,6 +85,8 @@ export function Link({ to, onClick, ...props }: LinkProps) {
     )
       return;
     event.preventDefault();
+    document.documentElement.style.setProperty("--nav-origin-x", `${event.clientX}px`);
+    document.documentElement.style.setProperty("--nav-origin-y", `${event.clientY}px`);
     navigate(to);
   };
   return <a href={to} onClick={handleClick} {...props} />;
@@ -129,9 +140,11 @@ export function Routes({ children }: { children: ReactNode }) {
     const match = matchRoute(child.props.path, pathname);
     if (match)
       return (
-        <ParamsContext.Provider value={match.params}>
-          {child.props.element}
-        </ParamsContext.Provider>
+        <div className="route-frame" key={pathname} data-route={pathname}>
+          <ParamsContext.Provider value={match.params}>
+            {child.props.element}
+          </ParamsContext.Provider>
+        </div>
       );
   }
   return null;

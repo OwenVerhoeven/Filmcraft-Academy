@@ -51,14 +51,66 @@ const constellationPoints = [
 ];
 
 function DomainConstellation({ progress }: { progress: ReturnType<typeof useProgress>["progress"] }) {
+  const [focused, setFocused] = useState<number | null>(null);
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const focusedDomain = focused === null ? null : domains[focused];
+  const moveField = (event: React.PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+    fieldRef.current?.style.setProperty("--sky-x", `${x * 12}px`);
+    fieldRef.current?.style.setProperty("--sky-y", `${y * 9}px`);
+    fieldRef.current?.style.setProperty("--sky-back-x", `${x * -4.2}px`);
+    fieldRef.current?.style.setProperty("--sky-back-y", `${y * -3.15}px`);
+    fieldRef.current?.style.setProperty("--sky-front-x", `${x * 8.4}px`);
+    fieldRef.current?.style.setProperty("--sky-front-y", `${y * 6.3}px`);
+    fieldRef.current?.style.setProperty("--sky-core-x", `${x * 2.2}px`);
+    fieldRef.current?.style.setProperty("--sky-core-y", `${y * 1.6}px`);
+    fieldRef.current?.style.setProperty("--sky-star-x", `${x * 4.2}px`);
+    fieldRef.current?.style.setProperty("--sky-star-y", `${y * 3.15}px`);
+  };
   return (
-    <div className="constellation-field">
+    <div
+      className={`constellation-field ${focused !== null ? "is-exploring" : ""}`}
+      ref={fieldRef}
+      onPointerMove={moveField}
+      onPointerLeave={() => {
+        fieldRef.current?.style.setProperty("--sky-x", "0px");
+        fieldRef.current?.style.setProperty("--sky-y", "0px");
+        fieldRef.current?.style.setProperty("--sky-back-x", "0px");
+        fieldRef.current?.style.setProperty("--sky-back-y", "0px");
+        fieldRef.current?.style.setProperty("--sky-front-x", "0px");
+        fieldRef.current?.style.setProperty("--sky-front-y", "0px");
+        fieldRef.current?.style.setProperty("--sky-core-x", "0px");
+        fieldRef.current?.style.setProperty("--sky-core-y", "0px");
+        fieldRef.current?.style.setProperty("--sky-star-x", "0px");
+        fieldRef.current?.style.setProperty("--sky-star-y", "0px");
+        setFocused(null);
+      }}
+    >
+      <div className="cosmic-dust" aria-hidden="true">
+        {Array.from({ length: 28 }, (_, index) => (
+          <i
+            key={index}
+            style={{
+              left: `${(index * 37) % 97}%`,
+              top: `${(index * 61) % 93}%`,
+              width: `${1 + (index % 3)}px`,
+              height: `${1 + (index % 3)}px`,
+              animationDuration: `${2.4 + (index % 6) * 0.48}s`,
+              animationDelay: `${index * -0.23}s`,
+            }}
+          />
+        ))}
+      </div>
+      <div className="meteor meteor-one" aria-hidden="true" />
+      <div className="meteor meteor-two" aria-hidden="true" />
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <ellipse cx="50" cy="50" rx="44" ry="42" />
-        <ellipse cx="50" cy="50" rx="28" ry="25" />
+        <ellipse className="orbit-ring orbit-outer" cx="50" cy="50" rx="44" ry="42" />
+        <ellipse className="orbit-ring orbit-inner" cx="50" cy="50" rx="28" ry="25" />
         {domains.map((domain, index) => {
           const [x, y] = constellationPoints[index] ?? [50, 50];
-          return <path key={domain.id} d={`M 50 50 Q ${(50 + x) / 2 + (index % 2 ? 4 : -4)} ${(50 + y) / 2} ${x} ${y}`} />;
+          return <path className={`constellation-route ${focused === index ? "active" : ""}`} key={domain.id} d={`M 50 50 Q ${(50 + x) / 2 + (index % 2 ? 4 : -4)} ${(50 + y) / 2} ${x} ${y}`} />;
         })}
       </svg>
       <div className="constellation-core">
@@ -74,8 +126,11 @@ function DomainConstellation({ progress }: { progress: ReturnType<typeof useProg
             className={`constellation-star ${percent === 100 ? "complete" : ""}`}
             to={`/talent-tree/${domain.id}`}
             key={domain.id}
-            style={{ left: `${x}%`, top: `${y}%`, "--color": domain.color, "--delay": `${index * -0.37}s` } as React.CSSProperties}
+            style={{ left: `${x}%`, top: `${y}%`, "--color": domain.color, "--delay": `${index * -0.37}s`, "--star-index": index } as React.CSSProperties}
             aria-label={`${domain.title}: ${percent}% complete`}
+            onPointerEnter={() => setFocused(index)}
+            onFocus={() => setFocused(index)}
+            onBlur={() => setFocused(null)}
           >
             <i><DomainIcon domainId={domain.id} /></i>
             <span>{domain.short}</span>
@@ -83,6 +138,11 @@ function DomainConstellation({ progress }: { progress: ReturnType<typeof useProg
           </Link>
         );
       })}
+      <div className={`constellation-readout ${focusedDomain ? "visible" : ""}`} aria-live="polite">
+        <small>EXPLORE DOMAIN</small>
+        <strong>{focusedDomain?.title ?? "Choose a star"}</strong>
+        <span>{focusedDomain ? `${domainPercent(focusedDomain.id, progress)}% mastered · open skill constellation` : "Move through the sky to trace your next path"}</span>
+      </div>
     </div>
   );
 }

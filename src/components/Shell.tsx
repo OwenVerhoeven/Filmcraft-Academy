@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Aperture,
   Map,
@@ -41,14 +41,32 @@ const nav = [
 ] as const;
 export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [cutting, setCutting] = useState(false);
   const { progress, syncState } = useProgress();
   const { user, logout, cloudConnected } = useAuth();
   const { t } = useLanguage();
   const level = levelForXp(progress.xp),
     from = xpForLevel(level),
     to = xpForNextLevel(level);
+  useEffect(() => {
+    let timer = 0;
+    const onNavigate = () => {
+      setCutting(false);
+      requestAnimationFrame(() => setCutting(true));
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setCutting(false), 920);
+    };
+    window.addEventListener("filmcraft:navigate", onNavigate);
+    return () => {
+      window.removeEventListener("filmcraft:navigate", onNavigate);
+      window.clearTimeout(timer);
+    };
+  }, []);
   return (
     <div className={`shell ${progress.reducedMotion ? "motion-reduced" : ""}`}>
+      <div className={`cinematic-cut ${cutting ? "playing" : ""}`} aria-hidden="true">
+        <i /><i /><i />
+      </div>
       <aside className={open ? "nav open" : "nav"}>
         <div className="brand">
           <Aperture />
